@@ -17,6 +17,8 @@ class FindPasswordThread(
         val time = measureTimeMillis {
             for (position in startIndex until startIndex + count) {
 
+                if (isFound) break
+
                 val password = StringBuilder("01234")
 
                 for (i in 0..4) {
@@ -25,7 +27,9 @@ class FindPasswordThread(
                 }
 
                 if (password.toString().hash() == hash) {
+                    isFound = true
                     println("Исходная строка: $password")
+                    println("Поток, который нашёл ответ: $threadName")
                     break
                 }
             }
@@ -41,9 +45,10 @@ private const val countLetters = 26
 private const val length = 5
 private val countVariants = countLetters pow length
 
+private var isFound = false
+
 
 fun main() {
-    val arrayThreads = ArrayList<FindPasswordThread>()
     val input = Scanner(System.`in`)
 
     println("Введите хэш")
@@ -57,10 +62,10 @@ fun main() {
     for (i in 0 until countThreads) {
         val findPasswordThread = FindPasswordThread("Поток №${i + 1}", hash, counts.sumAt(i), counts[i])
 
-        arrayThreads.add(findPasswordThread)
-
         findPasswordThread.start()
     }
+
+    println("Ищем строку...")
 }
 
 
